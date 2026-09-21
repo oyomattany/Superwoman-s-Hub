@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FAF7F2"/>
+      <stop offset="100%" stop-color="#F3ECE2"/>
+    </linearGradient>
+    <linearGradient id="goldCap" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#B8892C"/>
+      <stop offset="50%" stop-color="#E5C365"/>
+      <stop offset="100%" stop-color="#B8892C"/>
+    </linearGradient>
+    <linearGradient id="oilGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#F7E6C4" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#E8C37B" stop-opacity="0.95"/>
+    </linearGradient>
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#5A1224" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="500" height="500" fill="url(#bgGrad)"/>
+  
+  <!-- Subtle inner frame border -->
+  <rect x="20" y="20" width="460" height="460" rx="24" fill="none" stroke="#EADFD4" stroke-width="1.5" stroke-dasharray="4 4"/>
+
+  <!-- Centered Bottle Illustration with Soft Shadow -->
+  <g transform="translate(0, -10)" filter="url(#softShadow)">
+    <!-- Roller Ball / Neck -->
+    <ellipse cx="250" cy="148" rx="20" ry="10" fill="#E8DED4"/>
+    
+    <!-- Golden Roll-on Cap -->
+    <rect x="220" y="152" width="60" height="56" rx="6" fill="url(#goldCap)"/>
+    <!-- Subtle cap ridges -->
+    <line x1="228" y1="156" x2="228" y2="204" stroke="#FAF2D6" stroke-width="1" opacity="0.6"/>
+    <line x1="240" y1="156" x2="240" y2="204" stroke="#FAF2D6" stroke-width="1" opacity="0.6"/>
+    <line x1="250" y1="156" x2="250" y2="204" stroke="#FAF2D6" stroke-width="1" opacity="0.6"/>
+    <line x1="260" y1="156" x2="260" y2="204" stroke="#FAF2D6" stroke-width="1" opacity="0.6"/>
+    <line x1="272" y1="156" x2="272" y2="204" stroke="#FAF2D6" stroke-width="1" opacity="0.6"/>
+
+    <!-- Glass Bottle Body -->
+    <rect x="216" y="208" width="68" height="150" rx="10" fill="#FFFFFF" fill-opacity="0.9" stroke="#DFD3C6" stroke-width="1.5"/>
+    
+    <!-- Perfume Oil Liquid Level inside bottle -->
+    <rect x="220" y="235" width="60" height="118" rx="6" fill="url(#oilGrad)"/>
+    <path d="M 220 235 Q 250 231 280 235 L 280 347 Q 280 353 274 353 L 226 353 Q 220 353 220 347 Z" fill="url(#oilGrad)"/>
+
+    <!-- Bottle Label -->
+    <rect x="225" y="252" width="50" height="74" rx="3" fill="#FAF8F5" stroke="#D1BEB0" stroke-width="1"/>
+    <line x1="230" y1="262" x2="270" y2="262" stroke="#5A1224" stroke-width="1.5"/>
+    <rect x="233" y="272" width="34" height="2" fill="#C59E3F"/>
+    <rect x="236" y="280" width="28" height="2" fill="#A89A8E"/>
+    <rect x="238" y="288" width="24" height="2" fill="#A89A8E"/>
+    <circle cx="250" cy="308" r="4" fill="#C59E3F" opacity="0.8"/>
+  </g>
+
+  <!-- Typography & Brand Label -->
+  <text x="250" y="390" text-anchor="middle" font-family="'Playfair Display', Georgia, serif" font-size="14" font-weight="600" fill="#5A1224" letter-spacing="2">SUPERWOMAN'S HUB</text>
+  <text x="250" y="412" text-anchor="middle" font-family="sans-serif" font-size="10" font-weight="600" fill="#C59E3F" letter-spacing="3">AUTHENTIC OIL PERFUME</text>
+  <text x="250" y="445" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="400" fill="#8C7A6B" letter-spacing="0.5">Individual photo coming soon</text>
+</svg>

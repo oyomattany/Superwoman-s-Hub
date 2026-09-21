@@ -1,0 +1,46 @@
+{
+  "entities": {
+    "products": {
+      "title": "Products",
+      "description": "Oil perfume product catalog",
+      "type": "collection",
+      "fields": {
+        "name": { "type": "string", "description": "Perfume name" },
+        "category": { "type": "string", "description": "Fragrance scent family" },
+        "price": { "type": "number", "description": "Base price in NGN" },
+        "description": { "type": "string", "description": "Product notes and description" },
+        "image": { "type": "string", "description": "Product photograph URL" },
+        "sizes": { "type": "array", "description": "Available roll-on sizes and prices" },
+        "stockStatus": { "type": "string", "description": "Stock status" },
+        "featured": { "type": "boolean", "description": "Featured on homepage" }
+      }
+    },
+    "settings": {
+      "title": "Store Settings",
+      "description": "Store configuration and social contact channels",
+      "type": "collection",
+      "fields": {
+        "businessName": { "type": "string", "description": "Store name" },
+        "whatsappNumber": { "type": "string", "description": "WhatsApp contact number" },
+        "phoneNumber": { "type": "string", "description": "Call phone number" },
+        "email": { "type": "string", "description": "Contact email" },
+        "instagram": { "type": "string", "description": "Instagram URL" },
+        "facebook": { "type": "string", "description": "Facebook URL" },
+        "tiktok": { "type": "string", "description": "TikTok URL" }
+      }
+    },
+    "orders": {
+      "title": "Orders",
+      "description": "Customer order records",
+      "type": "collection",
+      "fields": {
+        "customerName": { "type": "string", "description": "Customer name" },
+        "phoneNumber": { "type": "string", "description": "Customer phone number" },
+        "items": { "type": "array", "description": "Ordered items" },
+        "total": { "type": "number", "description": "Order total in NGN" },
+        "status": { "type": "string", "description": "Order status" },
+        "date": { "type": "string", "description": "Order placement date" }
+      }
+    }
+  }
+}

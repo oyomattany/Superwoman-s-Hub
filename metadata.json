@@ -1,0 +1,6 @@
+{
+  "name": "Superwoman's Hub",
+  "description": "Elegant, affordable, and long-lasting oil perfumes for every mood, moment and personality in Nigeria.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
