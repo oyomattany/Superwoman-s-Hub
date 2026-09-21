@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Superwoman's Hub</title>
+    <script>
+      // Automatically redirect 404s on static hosts (Vercel/GitHub Pages) to SPA hash router
+      var path = window.location.pathname.replace(/^\/+/, '');
+      var search = window.location.search || '';
+      if (path.indexOf('admin') === 0) {
+        window.location.replace('/#' + path + search);
+      } else if (path) {
+        window.location.replace('/#' + path + search);
+      } else {
+        window.location.replace('/' + search);
+      }
+    </script>
+  </head>
+  <body style="background-color: #FAF7F2; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; color: #5A1224;">
+    <p style="font-weight: 700; font-size: 16px; letter-spacing: 0.15em; margin: 0 0 8px 0;">SUPERWOMAN'S HUB</p>
+    <p style="font-size: 13px; color: #8C7A6B; margin: 0;">Loading page...</p>
+  </body>
+</html>
