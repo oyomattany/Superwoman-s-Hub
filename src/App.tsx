@@ -40,13 +40,37 @@ import { getStoredSiteImages } from './utils/adminStorage';
 
 const CART_STORAGE_KEY = 'superwomans_hub_cart_v1';
 
-// Helper to determine route from pathname
-function getRouteFromPath(path: string): {
+// Helper to determine route from pathname, hash, and search parameters
+function getRouteFromLocation(pathname: string, hash: string, search: string): {
   page: NavPage;
   adminSection?: AdminSection;
 } {
-  const cleanPath = path.toLowerCase().replace(/\/+$/, '') || '/';
+  const cleanPath = pathname.toLowerCase().replace(/\/+$/, '') || '/';
+  const cleanHash = (hash || '').toLowerCase().replace(/^#\/?/, '').replace(/\/+$/, '');
+  const urlParams = new URLSearchParams(search || '');
+  const isQueryAdmin = urlParams.get('admin') === 'true' || urlParams.get('page') === 'admin';
 
+  // Check Hash Routes First (fallback for static hosting without URL rewriting)
+  if (cleanHash === 'admin' || isQueryAdmin) {
+    return { page: 'admin' };
+  }
+  if (cleanHash === 'admin/dashboard' || cleanHash === 'dashboard') {
+    return { page: 'admin', adminSection: 'dashboard' };
+  }
+  if (cleanHash === 'admin/products' || cleanHash === 'products') {
+    return { page: 'admin', adminSection: 'products' };
+  }
+  if (cleanHash === 'admin/orders' || cleanHash === 'orders') {
+    return { page: 'admin', adminSection: 'orders' };
+  }
+  if (cleanHash === 'admin/settings' || cleanHash === 'settings') {
+    return { page: 'admin', adminSection: 'settings' };
+  }
+  if (cleanHash === 'shop') return { page: 'shop' };
+  if (cleanHash === 'about') return { page: 'about' };
+  if (cleanHash === 'contact') return { page: 'contact' };
+
+  // Standard Pathname Routes
   if (cleanPath === '/' || cleanPath === '/home') {
     return { page: 'home' };
   }
@@ -84,16 +108,24 @@ export function App() {
   // Current Route State
   const [currentPage, setCurrentPage] = useState<NavPage>(() => {
     if (typeof window !== 'undefined') {
-      // Check hash fallback
-      if (window.location.hash === '#admin') return 'admin';
-      return getRouteFromPath(window.location.pathname).page;
+      return getRouteFromLocation(
+        window.location.pathname,
+        window.location.hash,
+        window.location.search
+      ).page;
     }
     return 'home';
   });
 
   const [currentAdminSection, setCurrentAdminSection] = useState<AdminSection>(() => {
     if (typeof window !== 'undefined') {
-      return getRouteFromPath(window.location.pathname).adminSection || 'dashboard';
+      return (
+        getRouteFromLocation(
+          window.location.pathname,
+          window.location.hash,
+          window.location.search
+        ).adminSection || 'dashboard'
+      );
     }
     return 'dashboard';
   });
@@ -124,22 +156,26 @@ export function App() {
     }
   });
 
-  // Sync route on popstate (browser back/forward)
+  // Sync route on popstate (browser back/forward) and hashchange
   useEffect(() => {
-    const handlePopState = () => {
-      if (window.location.hash === '#admin') {
-        setCurrentPage('admin');
-        return;
-      }
-      const route = getRouteFromPath(window.location.pathname);
+    const handleRouteChange = () => {
+      const route = getRouteFromLocation(
+        window.location.pathname,
+        window.location.hash,
+        window.location.search
+      );
       setCurrentPage(route.page);
       if (route.adminSection) {
         setCurrentAdminSection(route.adminSection);
       }
     };
 
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+    window.addEventListener('popstate', handleRouteChange);
+    window.addEventListener('hashchange', handleRouteChange);
+    return () => {
+      window.removeEventListener('popstate', handleRouteChange);
+      window.removeEventListener('hashchange', handleRouteChange);
+    };
   }, []);
 
   // Subscribe to Firebase Auth
