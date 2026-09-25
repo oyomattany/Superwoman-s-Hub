@@ -217,10 +217,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     try {
       const url = await uploadProductImage(file);
       setFormData((prev) => ({ ...prev, image: url }));
-      showToast('Product photo uploaded successfully');
+      showToast('Photo uploaded and optimized for live store');
     } catch (err) {
       console.error('Upload error:', err);
-      showToast('Could not upload photo. Please try another image.');
+      showToast('Could not process photo. Please choose another image.');
     } finally {
       setUploadingImage(false);
     }
@@ -249,10 +249,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       });
 
       setIsProductModalOpen(false);
-      showToast(editingPerfume ? 'Product updated successfully' : 'New perfume added to store');
+      showToast(editingPerfume ? 'Product updated live on store' : 'New perfume published live to store');
     } catch (err) {
       console.error('Error saving product:', err);
-      showToast('Failed to save product to database');
+      showToast(err instanceof Error ? err.message : 'Failed to publish product to live store');
     } finally {
       setIsSavingProduct(false);
     }
@@ -1163,45 +1163,69 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   Product Image
                 </label>
                 
-                <div className="flex items-center gap-4">
+                <div className="flex items-start gap-4">
                   {/* Thumbnail Preview */}
-                  <div className="relative w-16 h-16 rounded-xl border border-[#D9C8BA] overflow-hidden bg-[#FAF7F2] flex-shrink-0">
+                  <div className="relative w-20 h-20 rounded-xl border border-[#D9C8BA] overflow-hidden bg-[#FAF7F2] flex-shrink-0">
                     <img
                       src={formData.image}
                       alt="Preview"
                       className="w-full h-full object-cover"
                     />
+                    {uploadingImage && (
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                        <span className="text-[10px] text-white font-medium animate-pulse">Processing</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Upload button & selector */}
                   <div className="flex-1 space-y-2">
-                    <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#FAF7F2] hover:bg-[#F2E8DC] border border-[#D9C8BA] text-xs text-[#5A1224] font-medium cursor-pointer transition-colors">
-                      <Upload className="w-3.5 h-3.5" />
-                      <span>{uploadingImage ? 'Uploading...' : 'Upload Photo'}</span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <label className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#FAF7F2] hover:bg-[#F2E8DC] border border-[#D9C8BA] text-xs text-[#5A1224] font-medium cursor-pointer transition-colors">
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>{uploadingImage ? 'Optimizing photo...' : 'Upload Device Photo'}</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleImageFileChange}
+                          disabled={uploadingImage}
+                        />
+                      </label>
+                      <span className="text-[10px] text-[#8C7A6B]">
+                        Auto-compressed for instant cloud sync
+                      </span>
+                    </div>
+
+                    {/* Direct Image URL input */}
+                    <div className="flex items-center gap-2">
                       <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleImageFileChange}
-                        disabled={uploadingImage}
+                        type="url"
+                        placeholder="Or paste image URL (https://...)"
+                        value={formData.image.startsWith('data:') ? '' : formData.image}
+                        onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                        className="w-full px-3 py-1.5 rounded-lg bg-[#FAF7F2] border border-[#D9C8BA] text-xs focus:outline-none focus:border-[#5A1224]"
                       />
-                    </label>
+                    </div>
 
                     {/* Or choose from Authentic library */}
-                    <div className="flex items-center gap-1 overflow-x-auto pt-1">
-                      {BRAND_MEDIA_LIBRARY.map((media) => (
-                        <button
-                          key={media.id}
-                          type="button"
-                          onClick={() => setFormData({ ...formData, image: media.url })}
-                          className={`w-7 h-7 rounded-md overflow-hidden border flex-shrink-0 cursor-pointer ${
-                            formData.image === media.url ? 'ring-2 ring-[#5A1224] border-transparent' : 'border-[#E8DDD2]'
-                          }`}
-                          title={media.name}
-                        >
-                          <img src={media.url} alt="" className="w-full h-full object-cover" />
-                        </button>
-                      ))}
+                    <div>
+                      <span className="text-[10px] text-[#8C7A6B] block mb-1">Or select a curated bottle photo:</span>
+                      <div className="flex items-center gap-1.5 overflow-x-auto pt-0.5">
+                        {BRAND_MEDIA_LIBRARY.map((media) => (
+                          <button
+                            key={media.id}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, image: media.url })}
+                            className={`w-7 h-7 rounded-md overflow-hidden border flex-shrink-0 cursor-pointer ${
+                              formData.image === media.url ? 'ring-2 ring-[#5A1224] border-transparent' : 'border-[#E8DDD2]'
+                            }`}
+                            title={media.name}
+                          >
+                            <img src={media.url} alt="" className="w-full h-full object-cover" />
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>

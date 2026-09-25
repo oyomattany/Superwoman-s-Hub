@@ -16,8 +16,8 @@ export const PopularScents: React.FC<PopularScentsProps> = ({
   onAddToCart,
   onViewAll,
 }) => {
-  // Show the popular 6 inventory items
-  const displayPerfumes = perfumes.slice(0, 6);
+  // Show all popular & newly added live inventory items (up to 12)
+  const displayPerfumes = perfumes.slice(0, 12);
 
   return (
     <section className="py-14 sm:py-20 bg-[#FAF7F2] border-b border-[#EADFD4]">
@@ -27,13 +27,13 @@ export const PopularScents: React.FC<PopularScentsProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
           <div className="text-left">
             <span className="text-[11px] uppercase tracking-[0.2em] text-[#C59E3F] font-bold">
-              Loved by Our Community
+              Available Now • Live Collection
             </span>
             <h2
               className="text-2xl sm:text-3xl lg:text-4xl font-serif text-[#5A1224] mt-1 font-semibold"
               style={{ fontFamily: "'Playfair Display', serif" }}
             >
-              Popular Scents
+              Popular Scents & New Arrivals
             </h2>
             <p className="text-xs sm:text-sm text-[#615750] mt-1.5 max-w-md">
               Discover fragrances our customers love. Pure oil formulas crafted to make an unforgettable impression.
@@ -44,7 +44,7 @@ export const PopularScents: React.FC<PopularScentsProps> = ({
             onClick={onViewAll}
             className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-[#5A1224] hover:text-[#7A1C33] transition-colors self-start sm:self-auto cursor-pointer"
           >
-            <span>View All Perfumes</span>
+            <span>View All Perfumes ({perfumes.length})</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>

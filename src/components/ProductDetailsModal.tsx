@@ -85,7 +85,7 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
             </span>
             <div className="absolute bottom-3 inset-x-3 bg-white/90 backdrop-blur-xs py-1.5 px-3 rounded-lg border border-[#E8DED4] text-center">
               <p className="text-[10px] text-[#6B5E57] uppercase tracking-wider font-medium">
-                Standard Roll-on Oil • Photo coming soon
+                {perfume.image.includes('placeholder') ? 'Standard Roll-on Oil • Photo coming soon' : (perfume.vibe || '100% Pure Undiluted Fragrance Oil')}
               </p>
             </div>
           </div>

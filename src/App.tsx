@@ -10,7 +10,6 @@ import {
 } from './types';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
-import { CategorySection } from './components/CategorySection';
 import { PopularScents } from './components/PopularScents';
 import { BrandStatement } from './components/BrandStatement';
 import { WhyShopWithUs } from './components/WhyShopWithUs';
@@ -491,18 +490,7 @@ export function App() {
               brandConfig={brandConfig}
             />
 
-            {/* Section 2: Shop by Scent */}
-            <CategorySection
-              onSelectCategory={(cat) => {
-                setShopCategoryFilter(cat);
-                setCurrentPage('shop');
-                window.history.pushState(null, '', '/shop');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              categoryImages={siteImages.categories}
-            />
-
-            {/* Section 3: Popular Scents (Filtered from Firestore catalog) */}
+            {/* Section 2: Popular Scents (Live from Firestore catalog) */}
             <PopularScents
               perfumes={perfumes}
               onSelectPerfume={(perfume) => setSelectedPerfume(perfume)}

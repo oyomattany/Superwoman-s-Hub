@@ -32,6 +32,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         <span className="absolute top-2.5 left-2.5 bg-[#FAF7F2]/90 backdrop-blur-xs text-[#5A1224] text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full border border-[#E6D9CD]">
           {perfume.category}
         </span>
+
+        {/* Featured Tag */}
+        {perfume.featured && (
+          <span className="absolute top-2.5 right-2.5 bg-[#5A1224] text-[#E5C365] text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-xs border border-[#C59E3F]/40">
+            Featured
+          </span>
+        )}
       </div>
 
       {/* Details Area */}
