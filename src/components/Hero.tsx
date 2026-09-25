@@ -15,6 +15,8 @@ export const Hero: React.FC<HeroProps> = ({ onShopClick, heroImage, brandConfig 
     brandConfig
   );
 
+  const displayImage = heroImage || brandConfig.heroImage || '/1789993107439.jpg';
+
   return (
     <section className="relative overflow-hidden bg-[#FAF7F2] py-12 sm:py-16 lg:py-20 border-b border-[#EADFD4]">
       {/* Subtle warm background accents */}
@@ -94,7 +96,7 @@ export const Hero: React.FC<HeroProps> = ({ onShopClick, heroImage, brandConfig 
               {/* Product Photograph Card */}
               <div className="relative overflow-hidden rounded-2xl shadow-xl border border-[#E3D3C4] bg-white aspect-[4/5] group">
                 <img
-                  src={heroImage || '/1789993107439.jpg'}
+                  src={displayImage}
                   alt="Superwoman's Hub Founder with Oil Perfume Collection"
                   className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
                   referrerPolicy="no-referrer"

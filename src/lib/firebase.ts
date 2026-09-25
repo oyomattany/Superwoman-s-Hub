@@ -358,6 +358,23 @@ export async function saveStoreSettingsToFirestore(
   }
 }
 
+export async function saveHomepageImageToFirestore(
+  heroImage: string,
+  options?: { heroHeadline?: string; supportingText?: string }
+): Promise<void> {
+  const updatePayload: Partial<BrandConfig> = {
+    heroImage: heroImage.trim(),
+  };
+  if (options?.heroHeadline) {
+    updatePayload.heroHeadline = options.heroHeadline.trim();
+  }
+  if (options?.supportingText) {
+    updatePayload.supportingText = options.supportingText.trim();
+  }
+
+  await saveStoreSettingsToFirestore(updatePayload);
+}
+
 // ==========================================
 // Orders Firestore & Local Service
 // ==========================================
@@ -566,6 +583,24 @@ export async function uploadProductImage(file: File): Promise<string> {
     // Firebase Storage not provisioned or blocked - return the optimized compressed image
     // Because it is compressed to ~40-70KB, it safely stores in Firestore (<1MB limit)
     console.info('Using optimized compressed image for Firestore persistence.');
+    return compressedDataUrl;
+  }
+}
+
+export async function uploadSiteImage(file: File): Promise<string> {
+  // Compress hero image with high clarity but safe size
+  const compressedDataUrl = await compressAndOptimizeImage(file, 1200, 0.85);
+
+  try {
+    const timestamp = Date.now();
+    const cleanFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const storageRef = ref(storage, `site/${timestamp}_${cleanFileName}`);
+    
+    const snapshot = await uploadBytes(storageRef, file);
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    return downloadURL;
+  } catch (storageError) {
+    console.info('Using optimized compressed image for site hero/banner.');
     return compressedDataUrl;
   }
 }

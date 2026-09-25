@@ -65,6 +65,9 @@ function getRouteFromLocation(pathname: string, hash: string, search: string): {
   if (cleanHash === 'admin/settings' || cleanHash === 'settings') {
     return { page: 'admin', adminSection: 'settings' };
   }
+  if (cleanHash === 'admin/homepage' || cleanHash === 'homepage') {
+    return { page: 'admin', adminSection: 'homepage' };
+  }
   if (cleanHash === 'shop') return { page: 'shop' };
   if (cleanHash === 'about') return { page: 'about' };
   if (cleanHash === 'contact') return { page: 'contact' };
@@ -98,6 +101,9 @@ function getRouteFromLocation(pathname: string, hash: string, search: string): {
   }
   if (cleanPath === '/admin/settings') {
     return { page: 'admin', adminSection: 'settings' };
+  }
+  if (cleanPath === '/admin/homepage') {
+    return { page: 'admin', adminSection: 'homepage' };
   }
 
   return { page: '404' };
@@ -486,7 +492,7 @@ export function App() {
             {/* Section 1: Hero */}
             <Hero
               onShopClick={() => handleNavigate('shop')}
-              heroImage={siteImages.hero}
+              heroImage={brandConfig.heroImage || siteImages.hero}
               brandConfig={brandConfig}
             />
 

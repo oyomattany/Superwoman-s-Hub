@@ -17,10 +17,13 @@
     },
     "settings": {
       "title": "Store Settings",
-      "description": "Store configuration and social contact channels",
+      "description": "Store configuration, homepage hero banner image, and social contact channels",
       "type": "collection",
       "fields": {
         "businessName": { "type": "string", "description": "Store name" },
+        "heroImage": { "type": "string", "description": "Homepage hero banner image URL" },
+        "heroHeadline": { "type": "string", "description": "Homepage hero headline" },
+        "supportingText": { "type": "string", "description": "Homepage hero supporting description" },
         "whatsappNumber": { "type": "string", "description": "WhatsApp contact number" },
         "phoneNumber": { "type": "string", "description": "Call phone number" },
         "email": { "type": "string", "description": "Contact email" },

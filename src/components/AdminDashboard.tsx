@@ -13,8 +13,10 @@ import {
   saveProductToFirestore,
   deleteProductFromFirestore,
   saveStoreSettingsToFirestore,
+  saveHomepageImageToFirestore,
   updateOrderStatusInFirestore,
   uploadProductImage,
+  uploadSiteImage,
   logoutAdmin,
 } from '../lib/firebase';
 import { BRAND_MEDIA_LIBRARY } from '../utils/adminStorage';
@@ -39,6 +41,9 @@ import {
   X,
   Eye,
   Check,
+  Image as ImageIcon,
+  RotateCcw,
+  Camera,
 } from 'lucide-react';
 
 interface AdminDashboardProps {
@@ -117,15 +122,34 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   });
   const [isSavingSettings, setIsSavingSettings] = useState(false);
 
+  // Homepage Image & Banner Form State
+  const [homepageForm, setHomepageForm] = useState<{
+    heroImage: string;
+    heroHeadline: string;
+    supportingText: string;
+  }>({
+    heroImage: brandConfig.heroImage || BRAND_CONFIG.heroImage || '/1789993107439.jpg',
+    heroHeadline: brandConfig.heroHeadline || BRAND_CONFIG.heroHeadline,
+    supportingText: brandConfig.supportingText || BRAND_CONFIG.supportingText,
+  });
+  const [uploadingHeroImage, setUploadingHeroImage] = useState(false);
+  const [isSavingHero, setIsSavingHero] = useState(false);
+  const [heroImageInputUrl, setHeroImageInputUrl] = useState('');
+
   // Orders Filter State
   const [orderStatusFilter, setOrderStatusFilter] = useState<string>('all');
 
-  // Sync settingsForm when brandConfig changes
+  // Sync settingsForm and homepageForm when brandConfig changes
   React.useEffect(() => {
     setSettingsForm((prev) => ({
       ...prev,
       ...brandConfig,
     }));
+    setHomepageForm({
+      heroImage: brandConfig.heroImage || BRAND_CONFIG.heroImage || '/1789993107439.jpg',
+      heroHeadline: brandConfig.heroHeadline || BRAND_CONFIG.heroHeadline,
+      supportingText: brandConfig.supportingText || BRAND_CONFIG.supportingText,
+    });
   }, [brandConfig]);
 
   // Metric calculations
@@ -298,6 +322,77 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     }
   };
 
+  // Upload Homepage Hero Image
+  const handleHeroImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingHeroImage(true);
+    try {
+      const url = await uploadSiteImage(file);
+      setHomepageForm((prev) => ({ ...prev, heroImage: url }));
+      showToast('Homepage photo uploaded and ready. Click "Save & Publish" to activate live.');
+    } catch (err) {
+      console.error('Homepage image upload error:', err);
+      showToast('Could not process photo. Please choose another image.');
+    } finally {
+      setUploadingHeroImage(false);
+    }
+  };
+
+  // Apply custom direct URL to Homepage Hero Image
+  const handleApplyHeroInputUrl = () => {
+    if (!heroImageInputUrl.trim()) return;
+    setHomepageForm((prev) => ({ ...prev, heroImage: heroImageInputUrl.trim() }));
+    setHeroImageInputUrl('');
+    showToast('Applied custom image URL. Click "Save & Publish" to activate live.');
+  };
+
+  // Save Homepage Banner & Visuals to Firestore
+  const handleSaveHomepageHero = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!homepageForm.heroImage) {
+      showToast('Please select or upload an image for the homepage.');
+      return;
+    }
+
+    setIsSavingHero(true);
+    try {
+      await saveHomepageImageToFirestore(homepageForm.heroImage, {
+        heroHeadline: homepageForm.heroHeadline,
+        supportingText: homepageForm.supportingText,
+      });
+      showToast('Homepage hero image and text updated live on the website!');
+    } catch (err) {
+      console.error('Error saving homepage image:', err);
+      showToast('Failed to save homepage banner.');
+    } finally {
+      setIsSavingHero(false);
+    }
+  };
+
+  // Reset Homepage Image to Default Founder Photo
+  const handleResetHeroToDefault = async () => {
+    const defaultImg = '/1789993107439.jpg';
+    setHomepageForm((prev) => ({
+      ...prev,
+      heroImage: defaultImg,
+    }));
+    setIsSavingHero(true);
+    try {
+      await saveHomepageImageToFirestore(defaultImg, {
+        heroHeadline: homepageForm.heroHeadline,
+        supportingText: homepageForm.supportingText,
+      });
+      showToast('Homepage image restored to original founder photo.');
+    } catch (err) {
+      console.error('Error resetting hero image:', err);
+      showToast('Failed to reset homepage image.');
+    } finally {
+      setIsSavingHero(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#FAF7F2] flex flex-col text-left">
       
@@ -382,6 +477,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             >
               <ShoppingBag className="w-3.5 h-3.5 text-[#E5C365]" />
               <span>Orders ({orders.length})</span>
+            </button>
+
+            <button
+              onClick={() => onNavigateSection('homepage')}
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs uppercase tracking-wider font-semibold transition-all whitespace-nowrap cursor-pointer ${
+                currentSection === 'homepage'
+                  ? 'bg-[#5A1224] text-[#FAF7F2] border border-[#E5C365]/50 shadow-xs'
+                  : 'text-[#D8BCB0] hover:text-white hover:bg-[#5A1224]/50'
+              }`}
+            >
+              <ImageIcon className="w-3.5 h-3.5 text-[#E5C365]" />
+              <span>Homepage Banner</span>
             </button>
 
             <button
@@ -502,7 +609,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <h2 className="text-base font-serif font-bold text-[#5A1224] mb-4">
                 Quick Actions
               </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <button
                   onClick={handleOpenAddProduct}
                   className="p-4 rounded-xl border border-[#D9C8BA] bg-[#FAF7F2] hover:bg-[#F2E8DC] hover:border-[#5A1224] text-left transition-all group cursor-pointer"
@@ -513,6 +620,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <h3 className="text-sm font-semibold text-[#2D2825]">Add New Perfume</h3>
                   <p className="text-xs text-[#6B5E57] mt-0.5">
                     Upload photos, roll-on sizes, and prices
+                  </p>
+                </button>
+
+                <button
+                  onClick={() => onNavigateSection('homepage')}
+                  className="p-4 rounded-xl border border-[#D9C8BA] bg-[#FAF7F2] hover:bg-[#F2E8DC] hover:border-[#5A1224] text-left transition-all group cursor-pointer relative overflow-hidden"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="w-8 h-8 rounded-lg bg-[#8B263E] text-white flex items-center justify-center group-hover:scale-105 transition-transform">
+                      <ImageIcon className="w-4 h-4 text-[#E5C365]" />
+                    </div>
+                    <img
+                      src={homepageForm.heroImage || brandConfig.heroImage || '/1789993107439.jpg'}
+                      alt="Current Homepage Banner"
+                      className="w-8 h-8 rounded-lg object-cover border border-[#D9C8BA]"
+                    />
+                  </div>
+                  <h3 className="text-sm font-semibold text-[#2D2825]">Edit Homepage Image</h3>
+                  <p className="text-xs text-[#6B5E57] mt-0.5">
+                    Change banner photo, headline & visuals
                   </p>
                 </button>
 
@@ -1035,6 +1162,293 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </form>
             </div>
 
+            {/* Quick Link to Homepage Banner Editor */}
+            <div className="bg-[#FAF7F2] rounded-2xl border border-[#D9C8BA] p-5 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <img
+                  src={homepageForm.heroImage || brandConfig.heroImage || '/1789993107439.jpg'}
+                  alt="Homepage Banner"
+                  className="w-12 h-12 rounded-xl object-cover border border-[#D9C8BA] bg-white flex-shrink-0"
+                />
+                <div>
+                  <h4 className="text-xs font-bold text-[#5A1224] uppercase tracking-wider">
+                    Homepage Photo & Banner
+                  </h4>
+                  <p className="text-[11px] text-[#6B5E57] mt-0.5">
+                    Want to update the main hero photo or headline on the website?
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => onNavigateSection('homepage')}
+                className="px-4 py-2 rounded-xl bg-[#5A1224] hover:bg-[#721830] text-[#FAF7F2] text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer"
+              >
+                Edit Homepage Image →
+              </button>
+            </div>
+
+          </div>
+        )}
+
+        {/* ========================================================= */}
+        {/* SECTION 5: HOMEPAGE IMAGE & BANNER MANAGEMENT */}
+        {/* ========================================================= */}
+        {currentSection === 'homepage' && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h1
+                  className="text-2xl sm:text-3xl font-serif font-bold text-[#5A1224]"
+                  style={{ fontFamily: "'Playfair Display', serif" }}
+                >
+                  Homepage Banner & Visuals
+                </h1>
+                <p className="text-xs text-[#6B5E57] mt-1">
+                  Change the main image and headline featured on the homepage. Any updates save directly to the database and show live for all visitors immediately.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={onViewStore}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-[#D9C8BA] text-xs font-semibold text-[#5A1224] hover:bg-[#FAF7F2] transition-colors cursor-pointer"
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>View Live Homepage</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              
+              {/* Left Column: Live Visitor Preview */}
+              <div className="lg:col-span-5 space-y-4">
+                <div className="bg-white rounded-3xl border border-[#E8DDD2] p-5 shadow-xs">
+                  <div className="flex items-center justify-between pb-3 border-b border-[#E8DDD2] mb-4">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-[#5A1224] flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-[#C59E3F]" />
+                      <span>Live Visitor Preview</span>
+                    </span>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-[#E8F5E9] text-[#2E7D32]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#2E7D32] animate-pulse"></span>
+                      <span>Real-time Preview</span>
+                    </span>
+                  </div>
+
+                  {/* Mockup matching actual Hero.tsx appearance */}
+                  <div className="relative mx-auto max-w-sm rounded-2xl overflow-hidden shadow-lg border border-[#E3D3C4] bg-[#FAF7F2] aspect-[4/5] group">
+                    <img
+                      src={homepageForm.heroImage}
+                      alt="Homepage Banner Preview"
+                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = '/1789993107439.jpg';
+                      }}
+                    />
+
+                    <div className="absolute bottom-3 left-3 right-3 bg-[#FAF7F2]/95 backdrop-blur-md p-3 rounded-xl border border-[#EADFD4] shadow-sm text-left">
+                      <p className="text-[11px] uppercase tracking-widest text-[#5A1224] font-bold">
+                        {settingsForm.businessName || "Superwoman's Hub"}
+                      </p>
+                      <p className="text-[10px] text-[#544D48] font-normal truncate mt-0.5">
+                        {homepageForm.supportingText || "Authentic oil perfumes & curated fragrance collections."}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 p-3 bg-[#FAF7F2] rounded-xl border border-[#E8DDD2] text-left">
+                    <p className="text-[11px] font-semibold text-[#5A1224]">
+                      Current Headline:
+                    </p>
+                    <p className="text-xs text-[#2D2825] font-serif font-bold mt-0.5">
+                      "{homepageForm.heroHeadline}"
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Image Controls & Copy Form */}
+              <div className="lg:col-span-7 space-y-6">
+                
+                {/* 1. Upload & Photo Options Card */}
+                <div className="bg-white rounded-3xl border border-[#E8DDD2] p-6 shadow-xs text-left space-y-5">
+                  <div>
+                    <h2 className="text-base font-serif font-bold text-[#5A1224] flex items-center gap-2">
+                      <ImageIcon className="w-4 h-4 text-[#C59E3F]" />
+                      <span>Change Homepage Photo</span>
+                    </h2>
+                    <p className="text-xs text-[#6B5E57] mt-0.5">
+                      Upload any photo from your phone or choose an authentic brand library image.
+                    </p>
+                  </div>
+
+                  {/* Action 1: Upload from Device */}
+                  <div className="p-4 rounded-2xl border-2 border-dashed border-[#D9C8BA] hover:border-[#5A1224] bg-[#FAF7F2] text-center transition-colors">
+                    <input
+                      type="file"
+                      id="hero-file-upload"
+                      accept="image/*"
+                      onChange={handleHeroImageFileChange}
+                      disabled={uploadingHeroImage}
+                      className="hidden"
+                    />
+                    <label
+                      htmlFor="hero-file-upload"
+                      className="cursor-pointer flex flex-col items-center justify-center gap-2 py-2"
+                    >
+                      <div className="w-12 h-12 rounded-full bg-[#5A1224] text-[#FAF7F2] flex items-center justify-center shadow-sm">
+                        {uploadingHeroImage ? (
+                          <div className="w-5 h-5 border-2 border-[#FAF7F2] border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <Camera className="w-5 h-5 text-[#E5C365]" />
+                        )}
+                      </div>
+                      <div>
+                        <span className="text-xs font-semibold text-[#5A1224] block">
+                          {uploadingHeroImage ? 'Optimizing & Uploading Image...' : 'Click to Upload Photo from Phone or Computer'}
+                        </span>
+                        <span className="text-[11px] text-[#8C7A6B] mt-0.5 block">
+                          PNG, JPG, or WebP. Automatically resized and compressed for fast loading.
+                        </span>
+                      </div>
+                    </label>
+                  </div>
+
+                  {/* Action 2: Direct Image URL */}
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-[#47403B] mb-1.5">
+                      Or Paste Direct Image Web Address (URL)
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="url"
+                        placeholder="https://example.com/perfume-photo.jpg"
+                        value={heroImageInputUrl}
+                        onChange={(e) => setHeroImageInputUrl(e.target.value)}
+                        className="flex-1 px-3.5 py-2.5 rounded-xl bg-[#FAF7F2] border border-[#D9C8BA] text-xs focus:outline-none focus:border-[#5A1224]"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleApplyHeroInputUrl}
+                        disabled={!heroImageInputUrl.trim()}
+                        className="px-4 py-2.5 rounded-xl bg-[#5A1224] hover:bg-[#721830] text-white text-xs font-semibold transition-colors disabled:opacity-50 cursor-pointer"
+                      >
+                        Apply URL
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Action 3: Choose from Curated Brand Media Library */}
+                  <div className="pt-2">
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-[#47403B] mb-2">
+                      Or Select from Curated Brand Photos
+                    </label>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      {BRAND_MEDIA_LIBRARY.map((asset) => {
+                        const isSelected = homepageForm.heroImage === asset.url;
+                        return (
+                          <button
+                            key={asset.id}
+                            type="button"
+                            onClick={() => {
+                              setHomepageForm((prev) => ({ ...prev, heroImage: asset.url }));
+                              showToast(`Selected "${asset.name}"`);
+                            }}
+                            className={`p-2 rounded-xl border text-left transition-all cursor-pointer relative group ${
+                              isSelected
+                                ? 'border-[#5A1224] bg-[#F5EAE1] ring-2 ring-[#5A1224]/30'
+                                : 'border-[#E8DDD2] bg-[#FAF7F2] hover:bg-white hover:border-[#D9C8BA]'
+                            }`}
+                          >
+                            <div className="relative aspect-square rounded-lg overflow-hidden bg-white mb-2">
+                              <img
+                                src={asset.url}
+                                alt={asset.name}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                              />
+                              {isSelected && (
+                                <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-[#5A1224] text-white flex items-center justify-center shadow-xs">
+                                  <Check className="w-3 h-3 text-[#E5C365]" />
+                                </div>
+                              )}
+                            </div>
+                            <span className="text-[11px] font-semibold text-[#2D2825] block truncate leading-tight">
+                              {asset.name}
+                            </span>
+                            <span className="text-[10px] text-[#8C7A6B] block line-clamp-1 mt-0.5">
+                              {asset.description}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* 2. Text & Headline Controls Card */}
+                <div className="bg-white rounded-3xl border border-[#E8DDD2] p-6 shadow-xs text-left space-y-4">
+                  <h2 className="text-base font-serif font-bold text-[#5A1224]">
+                    Homepage Text & Copy
+                  </h2>
+
+                  {/* Headline */}
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-[#47403B] mb-1">
+                      Hero Headline
+                    </label>
+                    <input
+                      type="text"
+                      value={homepageForm.heroHeadline}
+                      onChange={(e) => setHomepageForm({ ...homepageForm, heroHeadline: e.target.value })}
+                      placeholder="Find Your Signature Scent."
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF7F2] border border-[#D9C8BA] text-xs focus:outline-none focus:border-[#5A1224]"
+                    />
+                  </div>
+
+                  {/* Supporting text */}
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-[#47403B] mb-1">
+                      Supporting Subtitle
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={homepageForm.supportingText}
+                      onChange={(e) => setHomepageForm({ ...homepageForm, supportingText: e.target.value })}
+                      placeholder="Beautiful oil perfumes for every mood, moment and personality."
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF7F2] border border-[#D9C8BA] text-xs focus:outline-none focus:border-[#5A1224]"
+                    />
+                  </div>
+
+                  {/* Save & Reset Actions */}
+                  <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => handleSaveHomepageHero()}
+                      disabled={isSavingHero || uploadingHeroImage}
+                      className="flex-1 py-3 px-6 rounded-full bg-[#5A1224] hover:bg-[#721830] text-[#FAF7F2] text-xs font-semibold uppercase tracking-wider shadow-md hover:shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60"
+                    >
+                      <Sparkles className="w-4 h-4 text-[#E5C365]" />
+                      <span>{isSavingHero ? 'Publishing to Live Homepage...' : 'Save & Publish to Live Homepage'}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleResetHeroToDefault}
+                      disabled={isSavingHero}
+                      className="py-3 px-4 rounded-full bg-white hover:bg-[#FAF7F2] text-[#8C7A6B] hover:text-[#5A1224] border border-[#D9C8BA] text-xs font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      <span>Reset to Original</span>
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
           </div>
         )}
 

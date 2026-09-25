@@ -50,7 +50,7 @@ export interface SiteImages {
 
 export type NavPage = 'home' | 'shop' | 'about' | 'contact' | 'admin' | '404';
 
-export type AdminSection = 'dashboard' | 'products' | 'orders' | 'settings';
+export type AdminSection = 'dashboard' | 'products' | 'orders' | 'settings' | 'homepage';
 
 export type OrderStatus = 'New' | 'Confirmed' | 'Completed' | 'Cancelled';
 

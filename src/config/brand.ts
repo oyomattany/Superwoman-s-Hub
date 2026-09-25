@@ -6,6 +6,7 @@ export interface BrandConfig {
   tagline: string;
   supportingText: string;
   heroHeadline: string;
+  heroImage: string;
   whatsappNumber: string; // international format without + or spaces for wa.me links
   displayWhatsapp: string;
   phone: string;
@@ -26,6 +27,7 @@ export const BRAND_CONFIG: BrandConfig = {
   tagline: "Find Your Signature Scent.",
   supportingText: "Beautiful oil perfumes for every mood, moment and personality.",
   heroHeadline: "Find Your Signature Scent.",
+  heroImage: "/1789993107439.jpg",
   whatsappNumber: "2347030881613", // WhatsApp number: 07030881613 in international format
   displayWhatsapp: "07030881613",
   phone: "07030881613",
